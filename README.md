@@ -1,215 +1,282 @@
-📘 Wallet API – README
+**Wallet Management API**
 
-Bu proje dijital ödeme şirketleri için geliştirilmiş basit bir Cüzdan Yönetim Sistemi (Wallet API) uygulamasıdır.
-Spring Boot + Spring Security (Basic Auth) + H2 Database kullanır.
+This Spring Boot-based project provides a digital wallet management system authorized by customer and employee roles. The application is secured with Basic Authentication and uses the H2 in-memory database. The goal is to create multiple wallet management, role-based access, secure transaction flow, and a simple yet extensible backend infrastructure.
 
-Uygulama hem müşterilerin hem de çalışanların cüzdan işlemlerini yönetmesine izin verir.
+## 📌 Features
 
-🧱 Temel Özellikler
+### 🔐 Security and Authentication
 
-Customer → Kendi cüzdanları üzerinde işlem yapabilir
+- Basic Authentication
+- Role-Based Access Control (RBAC)
+- CUSTOMER → for only own wallets
+- EMPLOYEE → for all customers authorized to perform transactions
 
-Employee → Tüm müşteriler adına her işlemi yapabilir
+### 💼 Wallet Management
 
-Roller:
+- Customer can create a wallet on his own behalf
+- Employee can create a wallet on behalf of any customer
+- A customer can have more than one wallet
+- Employees can list all wallets
+- Customer can deposit money, withdraw money, and list transaction history.
 
-CUSTOMER
+### 🧱 Layered Architecture
 
-EMPLOYEE
+- Controller
+- Service (Interface + Implementation)
+- Repository
+- Config
+- Exception
+- DTO
+- Model (Entity)
+- Others
 
-İşlemler:
+### 🧪 Global Exception Handling
 
-Cüzdan oluşturma
+- Unauthorized access → 403
+- Resource Not Found → 404
+- Transaction error → 500
 
-Cüzdan listeleme
+### 🌱 Application Startup Data (DataSeeder)
 
-Para yatırma (deposit)
+When the application is first opened, role-based users are automatically added.
 
-Para çekme (withdraw)
+## 🗂 Users at the beginning
 
-İşlem listeleme
+| **Role** | **Username** | **Password** |
+| --- | --- | --- |
+| EMPLOYEE | employee1 | 12345 |
+| CUSTOMER | customer1 | 12345 |
+| CUSTOMER | customer2 | 12345 |
 
-İşlem onay/red (approve/deny)
+**All requests must be made with Basic Auth.**
 
-Para yatırma/çekme işlemleri mantığı:
+## 🚀 Setup and Running
 
-1000₺ üzeri → PENDING
+### Requirements
 
-1000₺ ve altı → APPROVED
+- Java 17+
+- Maven 3.9+
+- Any IDE (IntelliJ, Eclipse, VS Code)
 
-APPROVED ise hem balance hem usableBalance güncellenir
+### Steps
 
-PENDING ise yalnızca ilgili balance güncellenir
+#### 1\. Download Project
 
-Tüm işlemler veritabanına kaydedilir.
+Gou can download the zip from Github or clone it with git clone
 
-🛠️ Teknolojiler
-Teknoloji	Açıklama
-Spring Boot 3	Ana uygulama çatısı
-Spring Security	Basic Auth & Rol bazlı yetkilendirme
-H2 Database	Hafif, embed DB (test & deployment)
-JPA / Hibernate	ORM yapısı
-Lombok	Boilerplate kod azaltma
-👥 Seed Kullanıcılar
+#### 2\. Install Maven Dependencies
 
-Uygulama ayağa kalktığında otomatik olarak 3 kullanıcı oluşturulur:
+They are installed automatically when IDE is started.
 
-Username	Password	Role
-customer1	customer123	CUSTOMER
-customer2	customer123	CUSTOMER
-employee1	employee123	EMPLOYEE
+If you want to run via terminal:
 
-Tümü Basic Auth ile erişilebilir.
+- mvn clean install
 
-🗄️ H2 Console
+#### 3\. Run the application
 
-Tarayıcıdan:
+You can run directly on IDE or from terminal:
 
-http://localhost:8080/h2-console
+- mvn spring-boot:run
 
+#### 4\. Application address
 
-JDBC URL:
+- <http://localhost:8080>
 
-jdbc:h2:mem:testdb
+## 🔑 Use of API
 
-📌 API Endpointleri
-1️⃣ Create Wallet
+### Verification
 
-POST /api/wallets
+### Basic Auth is required on all endpoints
 
-Request Body
-{
-  "walletName": "Main Wallet",
-  "currency": "TRY",
-  "activeForShopping": true,
-  "activeForWithdraw": true
-}
+### Select Postman → Authorization → Basic Auth and enter your user information
 
-Açıklama:
+### CUSTOMER authorities
 
-Customer kendi adına cüzdan oluşturur
+- Creating own wallets (one or more)
+- Listing all wallets behalf of him/her
+- Deposit money to own wallets
+- Withdraw monet from own wallets
+- Listing all transactions belong to him/her
 
-Employee herhangi bir customer için cüzdan oluşturabilir:
-POST /api/wallets?customerId=2
+### EMPLOYEE authorities
 
-2️⃣ List Wallets
+- Creating wallet on behalf of any customer
+- Listing wallets on behalf of any customer
+- Doing everything a customer can do on behalf of that customer
+- Approving or denying transactions for pending situations
 
-GET /api/wallets
+### Exepcted Error Codes
 
-Customer → yalnızca kendi cüzdanları
+- 401 → Wrong username/password
+- 403 → No role authorization
+- 404 → Resource not found
+- 500 → Generic server error
 
-Employee → tüm cüzdanlar
+## 🛠 H2 Database
 
-3️⃣ Deposit
+### Access to console
 
-POST /api/wallets/{walletId}/deposit
+- <http://localhost:8080/h2-console>
 
-Request Body
-{
-  "amount": 750,
-  "oppositePartyType": "IBAN",
-  "source": "TR12000678901234567890"
-}
+### JDBC info
 
-4️⃣ Withdraw
+- JDBC URL: jdbc:h2:mem:testdb
+- User: sa
+- Password: empty (default)
 
-POST /api/wallets/{walletId}/withdraw
+## 🧪 Running Test
 
-Request Body
-{
-  "amount": 600,
-  "oppositePartyType": "PAYMENT",
-  "destination": "PAYMENT_5566"
-}
+Unit tests are written by JUnit + Mockito.
 
+To run:
 
-Çekim kuralları:
+- IDE → "Run Tests"
+- or terminal:
+  - mvn test
 
-Cüzdan activeForWithdraw = true olmalı
+## 🧱 Main structure of architecture
 
-Kullanılabilir bakiye yeterli olmalı
+- Controller layer → handles requests and returns responses
+- Service layer → includes business logic
+- Repository layer → DB access
+- Exception layer → Custom exceptions + global exception handler
+- Config → application configurations and security procedures
+- DTO and Entity layer → data models
 
-5️⃣ List Transactions
+## 📦 Deployment
 
-GET /api/wallets/{walletId}/transactions
+Project can be deployed to any environment
 
-6️⃣ Approve / Deny Transaction
+### Jar olarak
 
-POST /api/transactions/{transactionId}/approve
+- mvn clean package
+- java -jar target/wallet-app.jar
 
-Request Body
-{
-  "status": "APPROVED"
-}
+**Project includes application.yml and application-test.yml specified for test environment**
 
-Not:
+**ENDPOINTS AND SAMPLE DATA**
 
-Sadece EMPLOYEE yapabilir.
+**Authentication**
 
-🔐 Rol Bazlı Erişim Kuralları
-Endpoint	CUSTOMER	EMPLOYEE
-Create Wallet	✔ kendi adına	✔ tüm kullanıcılar adına
-List Wallets	✔ kendi	✔ herkes
-Deposit	✔ kendi	✔ herkes
-Withdraw	✔ kendi	✔ herkes
-List Transactions	✔ kendi	✔ herkes
-Approve Transaction	❌	✔
-🔧 Projeyi Çalıştırma
-1. Build
-mvn clean install
+- **Basic Auth is used**
+- Sample Users:
+  - Customer: customer1 / customer123
+  - Customer: customer2 / customer123
+  - Employee: employee1 / employee123
 
-2. Run
-mvn spring-boot:run
+**Create Wallet By Customer**
 
-🧪 POSTMAN Örnekleri
-Deposit örneği:
-POST http://localhost:8080/api/wallets/1/deposit
-Basic Auth: customer2 / customer123
-
-
-Body:
-
-{
-  "amount": 750,
-  "source": "TR12000678901234567890",
-  "oppositePartyType": "IBAN"
-}
-
-Withdraw örneği:
-POST http://localhost:8080/api/wallets/1/withdraw
-Basic Auth: customer1 / customer123
-
-
-Body:
+- **URL:** /wallets/create
+- **Method:** POST
+- **Auth:** CUSTOMER (kendi)
+- **Body (JSON):**
 
 {
-  "amount": 500,
-  "oppositePartyType": "PAYMENT",
-  "destination": "PAY_44"
+
+"walletName": "MyWallet",
+
+"currency": "TRY",
+
+"activeForShopping": true,
+
+"activeForWithdraw": true
+
 }
 
-Approve örneği (EMPLOYEE):
-POST http://localhost:8080/api/transactions/4/approve
-Basic Auth: employee1 / employee123
+**Create Wallet By Employee**
 
-
-Body:
+- **URL:** /wallets/create/{customerId}
+- **Method:** POST
+- **Auth:** EMPLOYEE (her cüzdan için)
+- **PathVariable:** customerId
+- **Body (JSON):**
 
 {
-  "status": "APPROVED"
+
+"walletName": "MyWallet",
+
+"currency": "TRY",
+
+"activeForShopping": true,
+
+"activeForWithdraw": true
+
 }
 
-🧨 Hata Yönetimi
+**List Wallets By Customer**
 
-Global Exception Handler şunları döner:
+- **URL:** /wallets/list
+- **Method:** GET
+- **Auth:** CUSTOMER (sadece kendi)
 
-Durum	Response
-Wallet bulunamadı	404 NOT FOUND
-Unauthorized işlem	403 FORBIDDEN
-Bakiye yetersiz	400 BAD REQUEST
-Validation hatası	400 BAD REQUEST
-🎯 Sonuç
+**List Wallets By Employee**
 
-Bu API müşteriler ve çalışanlar arasındaki yetki modelini destekleyen,
-deposit/withdraw/approve gibi finansal iş kurallarını tam uygulayan,
-deployment-ready bir Wallet Backend servisidir.
+- **URL:** /wallets/list/{customerId}
+- **Method:** GET
+- **Auth:** EMPLOYEE (tüm cüzdanlar)
+- **PathVariable:** customerId
+
+**Deposit**
+
+- **URL:** /transactions/wallet/{walletId}/deposit
+- **Method:** POST
+- **Auth:** CUSTOMER (own wallet) / EMPLOYEE (each wallet)
+- **PathVariable:** walletId
+- **Body (JSON):**
+
+{
+
+"amount": 500.00,
+
+"source": "TR123456789"
+
+}
+
+**Withdraw**
+
+- **URL:** /transactions/wallet/{walletId}/withdraw
+- **Method:** POST
+- **Auth:** CUSTOMER (own wallet) / EMPLOYEE (each wallet)
+- **PathVariable:** walletId
+- **Body (JSON):**
+
+{
+
+"amount": 200.00,
+
+"destination": "TR987654321"
+
+}
+
+**List Transactions**
+
+- **URL:** /transactions/wallet/{walletId}
+- **Method:** GET
+- **Auth:** CUSTOMER (only own) / EMPLOYEE (all)
+- **Path variable:** walletId
+
+**Approve / Deny Transaction**
+
+- **URL:** /transactions/approveOrDeny
+- **Method:** POST
+- **Auth:** EMPLOYEE
+- **Body (JSON):**
+
+{
+
+"transactionId": 10,
+
+"status": "APPROVED"
+
+}
+
+**🔹 Notes**
+
+- **Because the H2 Database is used, the application is seeded at every restart, ensuring test users are ready.**
+- **If the amount exceeds 1000, it is recorded as PENDING; if it is below 1000, it is recorded as APPROVED when doing deposit and withdraw.**
+
+## 🎯 Result
+
+This project offers a simple yet powerful infrastructure built with multi-wallet management, role-based security, and a layered architecture.
+
+It is suitable for future expansion and includes the core components of a real e-wallet system.
