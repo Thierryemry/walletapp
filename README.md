@@ -1,4 +1,4 @@
-**Wallet Management API**
+# Wallet Management API
 
 This Spring Boot-based project provides a digital wallet management system authorized by customer and employee roles. The application is secured with Basic Authentication and uses the H2 in-memory database. The goal is to create multiple wallet management, role-based access, secure transaction flow, and a simple yet extensible backend infrastructure.
 
@@ -86,9 +86,9 @@ You can run directly on IDE or from terminal:
 
 ### Verification
 
-### Basic Auth is required on all endpoints
+Basic Auth is required on all endpoints.
 
-### Select Postman → Authorization → Basic Auth and enter your user information
+Select Postman → Authorization → Basic Auth and enter your user information.
 
 ### CUSTOMER authorities
 
@@ -147,14 +147,14 @@ To run:
 
 Project can be deployed to any environment
 
-### Jar olarak
+### Jar
 
 - mvn clean package
 - java -jar target/wallet-app.jar
 
-**Project includes application.yml and application-test.yml specified for test environment**
+Project includes **application.yml** and **application-test.yml** specified for test environment
 
-**ENDPOINTS AND SAMPLE DATA**
+# ENDPOINTS AND SAMPLE DATA
 
 **Authentication**
 
