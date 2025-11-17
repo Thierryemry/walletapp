@@ -2,6 +2,8 @@
 
 This Spring Boot-based project provides a digital wallet management system authorized by customer and employee roles. The application is secured with Basic Authentication and uses the H2 in-memory database. The goal is to create multiple wallet management, role-based access, secure transaction flow, and a simple yet extensible backend infrastructure.
 
+**Endpoints and sample usage data were specified in the below side of documentation.**
+
 ## 📌 Features
 
 ### 🔐 Security and Authentication
